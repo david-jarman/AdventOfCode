@@ -44,8 +44,6 @@ Console.WriteLine($"Multiple: {depth * horizontal}");
 
 return 0;
 
-*/
-
 // Day 2, part 2
 // https://adventofcode.com/2021/day/2#part2
 var input = File.ReadAllLines("input.txt")
@@ -91,3 +89,5 @@ Console.WriteLine($"Depth: {depth}");
 Console.WriteLine($"Multiple: {depth * horizontal}");
 
 return 0;
+
+*/
