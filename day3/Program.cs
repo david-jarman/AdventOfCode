@@ -44,8 +44,6 @@ Console.WriteLine($"Power rate: {epsilon_rate * gamma_rate}");
 
 // 101110100101 = 2981
 // 010001011010 = 1114
-*/
-
 
 // Day 3, part 2
 // https://adventofcode.com/2021/day/3#part2
@@ -156,3 +154,4 @@ static int parseBin(string s)
 
     return val;
 }
+*/
