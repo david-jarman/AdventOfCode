@@ -1,5 +1,5 @@
 using problem_solving;
 
-var bingo = new Bingo();
+var lines = new Lines();
 
-bingo.Solve();
+lines.Solve();
