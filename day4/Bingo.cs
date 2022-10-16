@@ -47,7 +47,7 @@ public class BingoBoard
 {
     private int[][] _board;
 
-    private Dictionary<int, Dictionary<int, bool>> _markedBoard;
+    private bool[][] _markedBoard;
 
     private Dictionary<int, (int i, int j)> _numberToPosMap;
 
@@ -55,17 +55,17 @@ public class BingoBoard
     {
         int iter = 0;
         _board = new int[5][];
+        _markedBoard = new bool[5][];
         _numberToPosMap = new Dictionary<int, (int i, int j)>();
-        _markedBoard = new Dictionary<int, Dictionary<int, bool>>();
 
         foreach (string row in rows)
         {
+            _markedBoard[iter] = new bool[5];
             _board[iter] =  row.Split(' ')
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .Select(num => int.Parse(num))
                 .ToArray();
 
-            _markedBoard[iter] = new Dictionary<int, bool>();
             for (int j = 0; j < _board[iter].Length; j++)
             {
                 int num = _board[iter][j];
@@ -93,21 +93,17 @@ public class BingoBoard
     {
         int score = 0;
 
-        int i = 0;
-        foreach (var row in _markedBoard.Values)
+        for (int i = 0; i < 5; i++)
         {
-            int j = 0;
-            foreach (var marked in row.Values)
+            bool[] row = _markedBoard[i];
+            for (int j = 0; j < 5; j++)
             {
+                bool marked = row[j];
                 if (!marked)
                 {
                     score += _board[i][j];
                 }
-
-                j++;
             }
-
-            i++;
         }
 
         return score;
