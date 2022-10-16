@@ -23,23 +23,39 @@ public class Bingo
             boards.Add(bingoBoard);
         }
 
+        int lastBoardScore = 0;
         foreach (int calledNumber in randomNumbers)
         {
+            List<int> boardIndexesToRemove = new List<int>();
+            int iter = 0;
             foreach(var board in boards)
             {
                 if (board.Blot(calledNumber))
                 {
                     // winner
-                    int score = board.Score();
+                    lastBoardScore = board.Score() * calledNumber;
 
-                    Console.WriteLine($"We have a winner. Score: {score}");
-                    Console.WriteLine($"The answer to the puzzle is {score * calledNumber}");
-                    return;
+                    // need to remove the board at this point.
+                    boardIndexesToRemove.Add(iter);
+
+                    // Console.WriteLine($"We have a winner. Score: {score}");
+                    // Console.WriteLine($"The answer to the puzzle is {score * calledNumber}");
+                    // return;
                 }
+                iter++;
+            }
+
+            // remove boards from last to start, to avoid messing with iterators as boards are removed :)
+            boardIndexesToRemove.Sort();
+            boardIndexesToRemove.Reverse();
+
+            foreach (int i in boardIndexesToRemove)
+            {
+                boards.RemoveAt(i);
             }
         }
 
-        Console.WriteLine($"No winners. Bummer");
+        Console.WriteLine($"The last board to score had a score of: {lastBoardScore}");
     }
 }
 
