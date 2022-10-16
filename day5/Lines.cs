@@ -27,48 +27,30 @@ public class Lines
             (int x_1, int y_1) = ConvertStringToPoint(coordArray[0]);
             (int x_2, int y_2) = ConvertStringToPoint(coordArray[1]);
 
-            if (x_1 != x_2 && y_1 != y_2)
-            {
-                // not a horizontal or vertical line, discard
-                continue;
-            }
-
-            // Fill in points between coords
-            // distance can be positive or negative
             int delta_x = x_2-x_1;
             int delta_y = y_2-y_1;
-            int distance = (delta_x) + (delta_y);
-            int abs_distance = Math.Abs(distance);
 
-            // Either 1 or -1, depending on going forwards or backwards along line
-            int incrementer = abs_distance / distance;
+            int incr_x = delta_x == 0 ? 0 : Math.Abs(delta_x) / delta_x;
+            int incr_y = delta_y == 0 ? 0 : Math.Abs(delta_y) / delta_y;
 
-            for (int iter = 0; iter <= abs_distance; iter += 1)
+            int new_x = 0;
+            int new_y = 0;
+
+            int iter = 0;
+            do
             {
-                // make the iterator positive or negative, based on direction
-                int i = iter * incrementer;
-
-                int incr_x = 0;
-                if (delta_x != 0)
-                {
-                    incr_x = i;
-                }
-
-                int incr_y = 0;
-                if (delta_y != 0)
-                {
-                    incr_y = i;
-                }
-
-                int new_x = x_1 + incr_x;
-                int new_y = y_1 + incr_y;
+                new_x = x_1 + (incr_x * iter);
+                new_y = y_1 + (incr_y * iter);
 
                 grid[new_x][new_y] += 1;
+
+                iter++;
             }
+            // loop until we've reached the destination point
+            while (!(new_x == x_2 && new_y == y_2));
         }
 
         // look at grid
-
         int overlappingPointCount = 0;
         for (int i = 0; i < gridSize; i++)
         {
