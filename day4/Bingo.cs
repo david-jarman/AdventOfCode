@@ -111,11 +111,9 @@ public class BingoBoard
 
         for (int i = 0; i < 5; i++)
         {
-            bool[] row = _markedBoard[i];
             for (int j = 0; j < 5; j++)
             {
-                bool marked = row[j];
-                if (!marked)
+                if (!_markedBoard[i][j])
                 {
                     score += _board[i][j];
                 }
