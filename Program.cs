@@ -1,3 +1,3 @@
 using problem_solving;
 
-new LanternFish().Solve();
+new Crabs().Part_1Solve();
