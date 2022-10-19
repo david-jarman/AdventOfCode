@@ -41,6 +41,56 @@ public class SyntaxErrors
         Console.WriteLine($"Score: {syntaxErrorScore}");
     }
 
+    public void Solve_Day2()
+    {
+        var lines = GetInput(false);
+
+        List<long> scores = new List<long>();
+
+        foreach (string line in lines)
+        {
+            bool corruptedLine = false;
+            Stack<char> chunkVerifier = new Stack<char>();
+            foreach (char chonk in line)
+            {
+                if (openers.Contains(chonk))
+                {
+                    chunkVerifier.Push(chonk);
+                }
+                else if (chunkVerifier.Count > 0)
+                {
+                    char opener = chunkVerifier.Pop();
+                    if (opener != matchingChunkers[chonk])
+                    {
+                        Console.WriteLine($"Corrupted line. Skipping...");
+                        corruptedLine = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!corruptedLine)
+            {
+                long missingCharScore = 0;
+                while (chunkVerifier.Count > 0)
+                {
+                    char orphanedOpener = chunkVerifier.Pop();
+                    char longLostCloser = matchingChunkers[orphanedOpener];
+
+                    missingCharScore *= 5;
+                    missingCharScore += ScoreMissingSyntax(longLostCloser);
+                }
+
+                scores.Add(missingCharScore);
+            }
+        }
+
+        scores.Sort();
+        long middleScore = scores[scores.Count / 2];
+
+        Console.WriteLine($"Score: {middleScore}");
+    }
+
     private string[] GetInput(bool useTestInput)
     {
         string fileName = useTestInput ? "day10/test_input.txt" : "day10/input.txt";
@@ -61,6 +111,18 @@ public class SyntaxErrors
             case '}': return 1197;
             case '>': return 25137;
             default: throw new Exception($"Not a closing chunk character: {illegalChar}");
+        }
+    }
+
+    private long ScoreMissingSyntax(char missingChar)
+    {
+        switch (missingChar)
+        {
+            case ')': return 1;
+            case ']': return 2;
+            case '}': return 3;
+            case '>': return 4;
+            default: throw new Exception($"Not a closing chunk character: {missingChar}");
         }
     }
 
