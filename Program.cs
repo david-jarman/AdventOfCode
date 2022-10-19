@@ -1,3 +1,3 @@
 using problem_solving;
 
-new SevenSegmentDisplay().Solve();
+new Heightmap().Solve_Day1();
