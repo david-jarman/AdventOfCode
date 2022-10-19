@@ -24,6 +24,98 @@ public class Heightmap
 
         Console.WriteLine($"Risk Level: {riskLevelSum}");
     }
+    public void Solve_Day2()
+    {
+        int[][] heightMap = GetHeightmap(false);
+
+        List<int> basinSizes = new List<int>();
+
+        for (int i = 0; i < heightMap.Length; i++)
+        {
+            int[] row = heightMap[i];
+            for (int j = 0; j < row.Length; j++)
+            {
+                // Determine if position is in low-spot
+                // If so, traverse graph looking for adjacent
+                // nodes that have a height larger than current
+                // and is not 9
+                if (IsLowSpot(i, j, heightMap))
+                {
+                    int basinSize = GetBasinSize(i, j, heightMap);
+                    basinSizes.Add(basinSize);
+                }
+            }
+        }
+
+        basinSizes.Sort();
+        int[] largestBasins = basinSizes.TakeLast(3).ToArray();
+
+        int answer = 1;
+        foreach (var basinSize in largestBasins)
+        {
+            answer *= basinSize;
+        }
+
+        Console.WriteLine($"Answer: {answer}");
+    }
+
+    private bool[][] InitBoolArray(int height, int width)
+    {
+        bool[][] arr = new bool[height][];
+
+        // init memory
+        for (int i = 0; i < height; i++)
+        {
+            arr[i] = new bool[width];
+            for (int j = 0; j < width; j++)
+            {
+                arr[i][j] = false;
+            }
+        }
+
+        return arr;
+    }
+
+    private int GetBasinSize(int root_i, int root_j, int[][] heightMap)
+    {
+        bool[][] memory = InitBoolArray(heightMap.Length, heightMap[0].Length);
+
+        Queue<(int i, int j)> traverse = new Queue<(int i, int j)>();
+
+        int basinSize = 0;
+        traverse.Enqueue((root_i, root_j));
+        while (traverse.Count != 0)
+        {
+            // Get location
+            var location = traverse.Dequeue();
+
+            // Increase basin size
+            basinSize++;
+
+            // Get height for current location
+            int currentHeight = heightMap[location.i][location.j];
+
+            var adjacents = GetAdjacents(location.i, location.j, heightMap);
+            foreach (var adjacent in adjacents)
+            {
+                // Have not been here before
+                if (!memory[adjacent.i][adjacent.j])
+                {
+                    var adjacent_height = heightMap[adjacent.i][adjacent.j];
+                    if (adjacent_height != 9 && adjacent_height > currentHeight)
+                    {
+                        // Traverse to the adjacent point if it meets the basin criteria
+                        traverse.Enqueue(adjacent);
+
+                        // Mark adjacent location as traversed, to avoid adding it multiple times in future
+                        memory[adjacent.i][adjacent.j] = true;
+                    }
+                }
+            }
+        }
+
+        return basinSize;
+    }
 
     private bool IsLowSpot(int i, int j, int[][] heightMap)
     {

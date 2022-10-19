@@ -1,3 +1,3 @@
 using problem_solving;
 
-new Heightmap().Solve_Day1();
+new Heightmap().Solve_Day2();
