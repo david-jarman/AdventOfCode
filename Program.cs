@@ -1,3 +1,3 @@
 using problem_solving;
 
-new Heightmap().Solve_Day2();
+new SyntaxErrors().Solve_Day1();
