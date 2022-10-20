@@ -2,7 +2,7 @@ namespace problem_solving;
 
 public class SyntaxErrors
 {
-    public void Solve_Day1()
+    public void Solve_Part1()
     {
         var lines = GetInput(false);
 
@@ -41,7 +41,7 @@ public class SyntaxErrors
         Console.WriteLine($"Score: {syntaxErrorScore}");
     }
 
-    public void Solve_Day2()
+    public void Solve_Part2()
     {
         var lines = GetInput(false);
 

@@ -2,7 +2,7 @@ namespace problem_solving;
 
 public class Heightmap
 {
-    public void Solve_Day1()
+    public void Solve_Part1()
     {
         int[][] heightMap = GetHeightmap(false);
 
@@ -24,7 +24,7 @@ public class Heightmap
 
         Console.WriteLine($"Risk Level: {riskLevelSum}");
     }
-    public void Solve_Day2()
+    public void Solve_Part2()
     {
         int[][] heightMap = GetHeightmap(false);
 
