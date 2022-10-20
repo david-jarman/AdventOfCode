@@ -68,6 +68,82 @@ public class OctupusFlashes
 
         Console.WriteLine($"Flashes: {flashes}");
     }
+    public void Solve_Part2()
+    {
+        int[][] energy = ParseInput(false);
+
+        int steps = 0;
+        int height = energy.Length;
+        int width = energy[0].Length;
+        int num_octopuses = height * width;
+
+        bool stop = false;
+
+        while (!stop)
+        {
+            int flashes = 0;
+            steps++;
+
+            Queue<(int i, int j)> traverse = new Queue<(int i, int j)>();
+            bool[][] flashed = new bool[energy.Length][];
+            for (int i = 0; i < flashed.Length; i++)
+            {
+                flashed[i] = new bool[energy[i].Length];
+                Array.Fill(flashed[i], false);
+            }
+
+            // increase energy levels by 1. Add any flashers to queue
+            for (int i = 0; i < energy.Length; i++)
+            {
+                for (int j = 0; j < energy[i].Length; j++)
+                {
+                    if (++energy[i][j] > 9)
+                    {
+                        traverse.Enqueue((i, j));
+                        flashes++;
+                        flashed[i][j] = true;
+                    }
+                }
+            }
+
+            // Cascade flashes to adjacents
+            while (traverse.Count > 0)
+            {
+                (int i, int j) = traverse.Dequeue();
+
+                List<(int i, int j)> adjacents = GetAdjacents(i, j, width, height);
+                foreach (var adjacent in adjacents)
+                {
+                    energy[adjacent.i][adjacent.j]++;
+                    if (energy[adjacent.i][adjacent.j] > 9 && !flashed[adjacent.i][adjacent.j])
+                    {
+                        flashed[adjacent.i][adjacent.j] = true;
+                        flashes++;
+                        traverse.Enqueue((adjacent.i, adjacent.j));
+                    }
+                }
+            }
+
+            // Reset energy back to 0
+            for (int i = 0; i < energy.Length; i++)
+            {
+                for (int j = 0; j < energy[i].Length; j++)
+                {
+                    if (energy[i][j] > 9)
+                    {
+                        energy[i][j] = 0;
+                    }
+                }
+            }
+
+            if (num_octopuses == flashes)
+            {
+                stop = true;
+            }
+        }
+
+        Console.WriteLine($"Steps until sync: {steps}");
+    }
 
     private List<(int i_off, int j_off)> adjacent_offsets = new List<(int i_off, int j_off)>
     {
