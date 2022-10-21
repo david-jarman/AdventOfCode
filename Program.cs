@@ -1,3 +1,3 @@
 using problem_solving;
 
-new OctupusFlashes().Solve_Part2();
+new CavePathing().Solve_Part1();
