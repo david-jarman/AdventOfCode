@@ -41,10 +41,60 @@ public class CavePathing
 
         Console.WriteLine($"unique paths: {uniquePaths}");
     }
+    public void Solve_Part2()
+    {
+        Cave startCave = BuildCaveSystemFromInput();
+
+        int uniquePaths = 0;
+
+        Stack<(int level, Cave cave)> caveStack = new Stack<(int level, Cave cave)>();
+        Stack<Cave> currentPath = new Stack<Cave>();
+        caveStack.Push((0, startCave));
+        startCave.VisitCount = 0;
+
+        while (caveStack.Count != 0)
+        {
+            (int level, Cave cave) = caveStack.Pop();
+
+            while (level != currentPath.Count)
+            {
+                // remove caves off the path to match the level of the newly visited cave
+                var removedCave = currentPath.Pop();
+                removedCave.VisitCount--;
+            }
+
+            currentPath.Push(cave);
+            cave.VisitCount++;
+
+            if (cave.IsEndCave)
+            {
+                uniquePaths++;
+                continue;
+            }
+
+            List<Cave> nextCaves = cave.ConnectedCaves.Where(c => !c.IsStartCave).ToList();
+
+            // Does the current path have a small cave that's arleady been visted twice?
+            bool revisitBanned = currentPath.Any(c => !c.IsBig && c.VisitCount > 1);
+
+            foreach (var next in nextCaves)
+            {
+                if (next.IsBig || next.VisitCount == 0 || !revisitBanned)
+                {
+                    caveStack.Push((level + 1, next));
+                }
+            }
+        }
+
+        Console.WriteLine($"unique paths: {uniquePaths}");
+    }
 
     private Cave BuildCaveSystemFromInput()
     {
         string fileName = "day12/input.txt";
+        //string fileName = "day12/test_input_3.txt";
+        //string fileName = "day12/test_input_2.txt";
+        //string fileName = "day12/test_input_1.txt";
 
         var lines = File.ReadAllLines(fileName)
             .Where(s => !string.IsNullOrWhiteSpace(s));
@@ -83,6 +133,7 @@ public class Cave
     {
         IsBig = char.IsUpper(name[0]);
         IsEndCave = name.Equals("end", StringComparison.OrdinalIgnoreCase);
+        IsStartCave = name.Equals("start", StringComparison.OrdinalIgnoreCase);
         Name = name;
     }
 
@@ -93,4 +144,8 @@ public class Cave
     public string Name { get; }
 
     public bool IsEndCave { get; }
+
+    public bool IsStartCave { get; }
+
+    public int VisitCount { get; set; } = 0;
 }
