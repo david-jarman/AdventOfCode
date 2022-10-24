@@ -1,3 +1,3 @@
 using problem_solving;
 
-new CavePathing().Solve_Part2();
+new Folding().Solve_Part1();
