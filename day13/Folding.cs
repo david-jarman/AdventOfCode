@@ -34,25 +34,6 @@ public class Folding
             }
 
             matrix = next;
-            // int dots = 0;
-            // foreach (bool dot in matrix)
-            // {
-            //     if (dot) dots++;
-            // }
-
-            // if (x_size < 100)
-            // {
-            //     Console.WriteLine("Printing matrix");
-            //     for (int y = 0; y < matrix.GetLength(1); y++)
-            //     {
-            //         for (int x = 0; x < matrix.GetLength(0); x++)
-            //         {
-            //             string c = matrix[x,y] ? "#" : ".";
-            //             Console.Write(c);
-            //         }
-            //         Console.WriteLine();
-            //     }
-            // }
         }
 
         Console.WriteLine("Printing matrix");
@@ -73,7 +54,6 @@ public class Folding
 
         string[] fileContents = File.ReadAllLines(fileName);
 
-        //var input = fileContents.Split("\n\n");
         var dots_s = fileContents.TakeWhile(s => !string.IsNullOrWhiteSpace(s));
         var folds_s = fileContents.TakeLast(fileContents.Length - dots_s.Count() - 1);
         
