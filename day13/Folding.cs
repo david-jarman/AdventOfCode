@@ -62,7 +62,17 @@ public class Folding
             .Select(i => (i[0], i[1]))
             .ToArray();
         int max_x = dots.Max(k => k.x) + 1;
-        int max_y = dots.Max(k => k.y) + 2;
+        int max_y = dots.Max(k => k.y) + 1;
+
+        if (max_x % 2 == 0)
+        {
+            max_x++;
+        }
+
+        if (max_y % 2 == 0)
+        {
+            max_y++;
+        }
 
         bool[,] matrix = new bool[max_x, max_y];
 
