@@ -107,13 +107,13 @@ public class CavePathing
             string cave1Name = caveNames[0];
             string cave2Name = caveNames[1];
 
-            if (!caves.TryGetValue(cave1Name, out Cave cave1))
+            if (!caves.TryGetValue(cave1Name, out Cave? cave1))
             {
                 caves[cave1Name] = new Cave(cave1Name);
                 cave1 = caves[cave1Name];
             }
 
-            if (!caves.TryGetValue(cave2Name, out Cave cave2))
+            if (!caves.TryGetValue(cave2Name, out Cave? cave2))
             {
                 caves[cave2Name] = new Cave(cave2Name);
                 cave2 = caves[cave2Name];
