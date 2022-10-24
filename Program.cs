@@ -1,3 +1,3 @@
 using problem_solving;
 
-new Folding().Solve_Part1();
+new Polymerization().Solve_Part1();
