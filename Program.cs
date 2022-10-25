@@ -1,3 +1,3 @@
 using problem_solving;
 
-new Chiton().Solve_Part1();
+new Chiton().Solve_Part2();

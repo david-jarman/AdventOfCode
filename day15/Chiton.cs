@@ -56,6 +56,64 @@ public class Chiton
         Console.WriteLine($"answer: {lowestRiskPath}");
     }
 
+    public void Solve_Part2()
+    {
+        string fileName = "day15/input.txt";
+
+        var lines = File.ReadAllLines(fileName)
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .ToArray();
+
+        int smallSize = lines.Length;
+        int fullSize = smallSize * 5;
+        int[,] map = new int[fullSize,fullSize];
+
+        for (int i = 0; i < fullSize; i++)
+        {
+            for (int j = 0; j < fullSize; j++)
+            {
+                int originalValue = int.Parse($"{lines[i%smallSize][j%smallSize]}");
+                int scale = (i / smallSize) + (j / smallSize);
+                int actualValue = ((originalValue + scale - 1) % 9) + 1;
+                map[j, i] = actualValue;
+            }
+        }
+
+        Queue<(int x, int y, int accRisk)> q = new Queue<(int x, int y, int accRisk)>();
+        
+        int[,] lowestRisk = new int[fullSize, fullSize];
+        for (int i = 0; i < lowestRisk.GetLength(1); i++)
+        {
+            for (int j = 0; j < lowestRisk.GetLength(0); j++)
+            {
+                lowestRisk[j, i] = int.MaxValue;
+            }
+        }
+
+        lowestRisk[0,0] = 0;
+
+        q.Enqueue((0, 0, 0));
+
+        while (q.Count > 0)
+        {
+            var loc = q.Dequeue();
+
+            foreach (var adj in GetAdjacents(loc.x, loc.y, fullSize))
+            {
+                int newPossibleRisk = loc.accRisk + map[adj.x, adj.y];
+                if (newPossibleRisk < lowestRisk[adj.x, adj.y])
+                {
+                    lowestRisk[adj.x, adj.y] = newPossibleRisk;
+                    q.Enqueue((adj.x, adj.y, newPossibleRisk));
+                }
+            }
+        }
+
+        int lowestRiskPath = lowestRisk[fullSize-1, fullSize-1];
+
+        Console.WriteLine($"answer: {lowestRiskPath}");
+    }
+
     private List<(int x_off, int y_off)> Offsets = new List<(int i_off, int j_off)>
     {
         (-1, 0),
