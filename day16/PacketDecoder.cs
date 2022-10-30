@@ -5,9 +5,7 @@ public class PacketDecoder
     public void Solve_Part1()
     {
         string contents = File.ReadAllText("day16/input.txt");
-        // string contents = "D2FE28";
-        //string contents = "38006F45291200";
-        // string contents = "A0016C880162017C3686B18A3D4780";
+        //string contents = "9C0141080250320F1802104A08";
 
         byte[] bytes = Convert.FromHexString(contents);
 
@@ -17,7 +15,7 @@ public class PacketDecoder
 
         var packet = pf.GetPacket(bin, 0, out int endIndex);
 
-        Console.WriteLine($"Sum of versions: {packet.SummedVersion}");
+        Console.WriteLine($"Value: {packet.GetValue()}");
     }
 }
 
@@ -100,6 +98,8 @@ public abstract class Packet
 
     public virtual int SummedVersion => Version;
 
+    public abstract long GetValue();
+
     public Packet(int version, int typeId)
     {
         Version = version;
@@ -120,13 +120,13 @@ public class LiteralValuePacket : Packet
         int index = startIndex;
         bool keepParsing = true;
 
-        int value = 0;
+        long value = 0;
         do
         {
             keepParsing = bin.GetNumber(index, 1) == 1;
             index++;
 
-            value = (value << 4) | bin.GetNumber(index, 4);
+            value = (value << 4) | (long)bin.GetNumber(index, 4);
             index += 4;
         }
         while (keepParsing);
@@ -136,7 +136,12 @@ public class LiteralValuePacket : Packet
         Value = value;
     }
 
-    public int Value { get; }
+    public long Value { get; }
+
+    public override long GetValue()
+    {
+        return Value;
+    }
 }
 
 public class OperatorPacket : Packet
@@ -157,6 +162,94 @@ public class OperatorPacket : Packet
 
             return sum;
         }
+    }
+
+    public override long GetValue()
+    {
+        // Quick sanity check
+        if (SubPackets.Count == 0)
+        {
+            throw new Exception("No sub packets");
+        }
+
+        long value = -1;
+        if (this.TypeId == 0)
+        {
+            // Sum
+            value = 0;
+            foreach (var p in SubPackets)
+            {
+                value += p.GetValue();
+            }
+        }
+        else if (this.TypeId == 1)
+        {
+            // Product
+            value = 1;
+            foreach (var p in SubPackets)
+            {
+                value *= p.GetValue();
+            }
+        }
+        else if (this.TypeId == 2)
+        {
+            // Min
+            value = long.MaxValue;
+            foreach (var p in SubPackets)
+            {
+                value = Math.Min(value, p.GetValue());
+            }
+        }
+        else if (this.TypeId == 3)
+        {
+            // Max
+            value = long.MinValue;
+            foreach (var p in SubPackets)
+            {
+                value = Math.Max(value, p.GetValue());
+            }
+        }
+        else if (this.TypeId == 5)
+        {
+            // Greater Than
+            if (SubPackets.Count != 2)
+            {
+                throw new Exception("Malformed operator packet. Should have exactly two sub packets");
+            }
+
+            value = SubPackets[0].GetValue() > SubPackets[1].GetValue() ? 1 : 0;
+        }
+        else if (this.TypeId == 6)
+        {
+            // Less Than
+            if (SubPackets.Count != 2)
+            {
+                throw new Exception("Malformed operator packet. Should have exactly two sub packets");
+            }
+
+            value = SubPackets[0].GetValue() < SubPackets[1].GetValue() ? 1 : 0;
+        }
+        else if (this.TypeId == 7)
+        {
+            // Equal to
+            if (SubPackets.Count != 2)
+            {
+                throw new Exception("Malformed operator packet. Should have exactly two sub packets");
+            }
+
+            value = SubPackets[0].GetValue() == SubPackets[1].GetValue() ? 1 : 0;
+        }
+        else
+        {
+            throw new Exception($"Invalid type id for operator packet: {TypeId}");
+        }
+
+        if (value == long.MinValue || value == long.MaxValue)
+        {
+            throw new Exception("value in invalid");
+        }
+
+        return value;
     }
 
     public OperatorPacket(int version, int typeId, Binary bin, int startIndex, out int endIndex)
