@@ -4,8 +4,10 @@ public class PacketDecoder
 {
     public void Solve_Part1()
     {
-        //string contents = File.ReadAllText("day16/input.txt");
-        string contents = "D2FE28";
+        string contents = File.ReadAllText("day16/input.txt");
+        // string contents = "D2FE28";
+        //string contents = "38006F45291200";
+        // string contents = "A0016C880162017C3686B18A3D4780";
 
         byte[] bytes = Convert.FromHexString(contents);
 
@@ -15,7 +17,7 @@ public class PacketDecoder
 
         var packet = pf.GetPacket(bin, 0, out int endIndex);
 
-        Console.WriteLine(packet);
+        Console.WriteLine($"Sum of versions: {packet.SummedVersion}");
     }
 }
 
@@ -67,17 +69,23 @@ public class Binary
 
 public class PacketFactory
 {
-    public Packet? GetPacket(Binary bin, int startIndex, out int endIndex)
+    public Packet GetPacket(Binary bin, int startIndex, out int endIndex)
     {
-        int version = bin.GetNumber(startIndex, 3);
-        int typeId = bin.GetNumber(startIndex + 3, 3);
+        int index = startIndex;
+        int version = bin.GetNumber(index, 3);
+        index += 3;
+        int typeId = bin.GetNumber(index, 3);
+        index += 3;
 
-        Packet packet = null;
-        endIndex = -1;
+        Packet packet;
 
         if (typeId == 4)
         {
-            packet = new LiteralValuePacket(version, typeId, bin, startIndex + 6, out endIndex);
+            packet = new LiteralValuePacket(version, typeId, bin, index, out endIndex);
+        }
+        else
+        {
+            packet = new OperatorPacket(version, typeId, bin, index, out endIndex);
         }
 
         return packet;
@@ -89,6 +97,8 @@ public abstract class Packet
     public int Version { get; }
 
     public int TypeId { get; }
+
+    public virtual int SummedVersion => Version;
 
     public Packet(int version, int typeId)
     {
@@ -127,4 +137,61 @@ public class LiteralValuePacket : Packet
     }
 
     public int Value { get; }
+}
+
+public class OperatorPacket : Packet
+{
+    public int LengthTypeId { get; }
+
+    public List<Packet> SubPackets { get; }
+
+    public override int SummedVersion
+    {
+        get
+        {
+            int sum = this.Version;
+            foreach (var p in SubPackets)
+            {
+                sum += p.SummedVersion;
+            }
+
+            return sum;
+        }
+    }
+
+    public OperatorPacket(int version, int typeId, Binary bin, int startIndex, out int endIndex)
+        : base(version, typeId)
+    {
+        int index = startIndex;
+        LengthTypeId = bin.GetNumber(index++, 1);
+        SubPackets = new List<Packet>();
+
+        if (LengthTypeId == 0)
+        {
+            int subPacketNumBits = bin.GetNumber(index, 15);
+            index += 15;
+            endIndex = index + subPacketNumBits;
+
+            while (index < endIndex)
+            {
+                var p = new PacketFactory().GetPacket(bin, index, out index);
+                this.SubPackets.Add(p);
+            }
+        }
+        else if (LengthTypeId == 1)
+        {
+            int numSubPackets = bin.GetNumber(index, 11);
+            index += 11;
+
+            int packetsAdded = 0;
+            while (packetsAdded < numSubPackets)
+            {
+                var p = new PacketFactory().GetPacket(bin, index, out index);
+                this.SubPackets.Add(p);
+                packetsAdded++;
+            }
+        }
+
+        endIndex = index;
+    }
 }
