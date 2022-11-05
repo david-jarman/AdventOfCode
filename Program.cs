@@ -1,3 +1,3 @@
 using problem_solving;
 
-new PacketDecoder().Solve_Part1();
+new TrickShot().Solve_Part1();
