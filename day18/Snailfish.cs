@@ -4,11 +4,11 @@ public class Snailfish
 {
     public void Solve_Par1()
     {
-        string test = "[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]";
+        string test = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]";
 
         Pair pair = Pair.Parse(test);
 
-        Console.WriteLine($"Parsed pair: {pair}");
+        Console.WriteLine($"Magnitude: {pair.Magnitude()}");
 
         if (!test.Equals(pair.ToString()))
         {
@@ -143,6 +143,11 @@ public class Pair : Element
         return newPair;
     }
 
+    public override long Magnitude()
+    {
+        return this.Left.Magnitude() * 3 + this.Right.Magnitude() * 2;
+    }
+
     public override string ToString()
     {
         return $"[{Left},{Right}]";
@@ -189,9 +194,16 @@ public class ValueElement : Element
     {
         return $"{Value}";
     }
+
+    public override long Magnitude()
+    {
+        return this.Value;
+    }
 }
 
 public abstract class Element
 {
     public Pair? Parent { get; set; }
+
+    public abstract long Magnitude();
 }
