@@ -4,27 +4,17 @@ public class Snailfish
 {
     public void Solve_Par1()
     {
-        // var pairs = File.ReadAllLines("day18/input.txt")
-        //     .Where(l => !string.IsNullOrWhiteSpace(l))
-        //     .Select(n => Pair.Parse(n));
+        var pairs = File.ReadAllLines("day18/input.txt")
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(n => Pair.Parse(n));
 
-        // Pair summedPair = pairs.First();
-        // foreach (Pair pair in pairs.Skip(1))
-        // {
-        //     summedPair = Pair.Add(summedPair, pair);
+        Pair summedPair = pairs.First();
+        foreach (Pair pair in pairs.Skip(1))
+        {
+            summedPair = Pair.Add(summedPair, pair);
+        }
 
-        //     summedPair.Reduce();
-        // }
-
-        // Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
-
-        //string testExplode = "[[[[[9,8],1],2],3],4]";
-        string testExplode = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]";
-        string afterReduce = "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]";
-
-        var pair = Pair.Parse(testExplode);
-
-        pair.Reduce();
+        Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
     }
 }
 
@@ -179,15 +169,17 @@ public class Pair : Element
 
         // Replace self with a 0 in the parent pair
         // Am I left or right, dad?
+        var newValue = new ValueElement(0);
+        newValue.Parent = this.Parent;
         if (this.Parent?.Left == this)
         {
             // I'm left
-            this.Parent.Left = new ValueElement(0);
+            this.Parent.Left =newValue;
         }
         else if (this.Parent?.Right == this)
         {
             // I'm  right
-            this.Parent.Right = new ValueElement(0);
+            this.Parent.Right = newValue;
         }
         else
         {
@@ -263,6 +255,9 @@ public class Pair : Element
         var newPair = new Pair(pair1, pair2);
         pair1.Parent = newPair;
         pair2.Parent = newPair;
+
+        newPair.Reduce();
+
         return newPair;
     }
 
@@ -288,7 +283,29 @@ public class ValueElement : Element
 
     public void Split()
     {
+        var leftValue = new ValueElement((int)Math.Floor(this.Value / 2.0));
+        var rightValue = new ValueElement((int)Math.Ceiling(this.Value / 2.0));
 
+        var newPair = new Pair(leftValue, rightValue);
+        newPair.Parent = this.Parent;
+        leftValue.Parent = newPair;
+        rightValue.Parent = newPair;
+
+        if (this.Parent?.Left == this)
+        {
+            this.Parent.Left = newPair;
+        }
+        else if (this.Parent?.Right == this)
+        {
+            this.Parent.Right = newPair;
+        }
+        else
+        {
+            throw new InvalidOperationException("ValueElement cannot be orphaned");
+        }
+
+        // goodbye world
+        this.Parent = null;
     }
 
     public ValueElement? GetValueElementLeft()
