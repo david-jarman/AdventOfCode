@@ -2,7 +2,7 @@ namespace problem_solving;
 
 public class Snailfish
 {
-    public void Solve_Par1()
+    public void Solve_Part1()
     {
         var pairs = File.ReadAllLines("day18/input.txt")
             .Where(l => !string.IsNullOrWhiteSpace(l))
@@ -15,6 +15,39 @@ public class Snailfish
         }
 
         Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
+    }
+
+    public void Solve_Part2()
+    {
+        var pairs = File.ReadAllLines("day18/input.txt")
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(n => Pair.Parse(n))
+            .ToArray();
+
+        // Find biggest magnitude of adding any two numbers in this list.
+        // Brute force: O(n^2)
+
+        long largestMagnitude = long.MinValue;
+        foreach (Pair pair1 in pairs)
+        {
+            foreach (Pair pair2 in pairs)
+            {
+                if (pair1 == pair2)
+                {
+                    continue;
+                }
+
+                Pair sum1 = Pair.Add(pair1, pair2);
+                long mag = sum1.Magnitude();
+
+                if (mag > largestMagnitude)
+                {
+                    largestMagnitude = mag;
+                }
+            }
+        }
+
+        Console.WriteLine($"Largest magnitude: {largestMagnitude}");
     }
 }
 
@@ -252,9 +285,13 @@ public class Pair : Element
 
     public static Pair Add(Pair pair1, Pair pair2)
     {
-        var newPair = new Pair(pair1, pair2);
-        pair1.Parent = newPair;
-        pair2.Parent = newPair;
+        // Deep copy the pairs then add
+        Pair pair1Copy = Pair.Parse(pair1.ToString());
+        Pair pair2Copy = Pair.Parse(pair2.ToString());
+
+        var newPair = new Pair(pair1Copy, pair2Copy);
+        pair1Copy.Parent = newPair;
+        pair2Copy.Parent = newPair;
 
         newPair.Reduce();
 
