@@ -119,14 +119,29 @@ public class Pair : Element
 
     public void Reduce()
     {
-        // If any pair is nested inside four pairs, the leftmost such pair explodes.
-        var nestedPair = this.FindNestedPair();
-        if (nestedPair != null)
-        {
-            nestedPair.Explode();
-        }
+        bool reduced = false;
 
-        // If any regular number is 10 or greater, the leftmost such regular number splits.
+        while (!reduced)
+        {
+            // If any pair is nested inside four pairs, the leftmost such pair explodes.
+            var nestedPair = this.FindNestedPair();
+            if (nestedPair != null)
+            {
+                nestedPair.Explode();
+                continue;
+            }
+
+            // If any regular number is 10 or greater, the leftmost such regular number splits.
+            ValueElement? valueG10 = this.FindLeftmostValueElementGreaterThan10();
+            if (valueG10 != null)
+            {
+                valueG10.Split();
+            }
+            else
+            {
+                reduced = true;
+            }
+        }
     }
 
     public void Explode()
@@ -134,9 +149,29 @@ public class Pair : Element
 
     }
 
-    public void Split()
+    public ValueElement? FindLeftmostValueElementGreaterThan10()
     {
+        Stack<Element> s = new();
 
+        s.Push(this.Right);
+        s.Push(this.Left);
+
+        while (s.Count > 0)
+        {
+            Element e = s.Pop();
+
+            if (e is ValueElement value && value.Value >= 10)
+            {
+                return value;
+            }
+            else if (e is Pair p)
+            {
+                s.Push(p.Right);
+                s.Push(p.Left);
+            }
+        }
+
+        return null;
     }
 
     public Pair? FindNestedPair()
@@ -145,11 +180,11 @@ public class Pair : Element
 
         if (this.Right is Pair right_pair)
         {
-            s.Push((right_pair, 0));
+            s.Push((right_pair, 1));
         }
         if (this.Left is Pair left_pair)
         {
-            s.Push((left_pair, 0));
+            s.Push((left_pair, 1));
         }
 
         while (s.Count > 0)
@@ -200,6 +235,11 @@ public class ValueElement : Element
     public ValueElement(int value)
     {
         Value = value;
+    }
+
+    public void Split()
+    {
+
     }
 
     public ValueElement? GetValueElementLeft()
