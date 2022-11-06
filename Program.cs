@@ -1,3 +1,3 @@
 using problem_solving;
 
-new TrickShot().Solve_Part2();
+new Snailfish().Solve_Par1();
