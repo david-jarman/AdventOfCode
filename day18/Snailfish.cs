@@ -4,19 +4,27 @@ public class Snailfish
 {
     public void Solve_Par1()
     {
-        var pairs = File.ReadAllLines("day18/input.txt")
-            .Where(l => !string.IsNullOrWhiteSpace(l))
-            .Select(n => Pair.Parse(n));
+        // var pairs = File.ReadAllLines("day18/input.txt")
+        //     .Where(l => !string.IsNullOrWhiteSpace(l))
+        //     .Select(n => Pair.Parse(n));
 
-        Pair summedPair = pairs.First();
-        foreach (Pair pair in pairs.Skip(1))
-        {
-            summedPair = Pair.Add(summedPair, pair);
+        // Pair summedPair = pairs.First();
+        // foreach (Pair pair in pairs.Skip(1))
+        // {
+        //     summedPair = Pair.Add(summedPair, pair);
 
-            summedPair.Reduce();
-        }
+        //     summedPair.Reduce();
+        // }
 
-        Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
+        // Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
+
+        //string testExplode = "[[[[[9,8],1],2],3],4]";
+        string testExplode = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]";
+        string afterReduce = "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]";
+
+        var pair = Pair.Parse(testExplode);
+
+        pair.Reduce();
     }
 }
 
@@ -146,7 +154,48 @@ public class Pair : Element
 
     public void Explode()
     {
+        if (this.Left is not ValueElement valueLeft)
+        {
+            throw new InvalidOperationException("Only value pairs can be exploded");
+        }
 
+        var valueLeftOfLeft = valueLeft.GetValueElementLeft();
+        if (valueLeftOfLeft != null)
+        {
+            valueLeftOfLeft.Value += valueLeft.Value;
+        }
+
+        if (this.Right is not ValueElement valueRight)
+        {
+            throw new InvalidOperationException("Only value pairs can be exploded");
+        }
+
+        // Do right as well
+        var valueRightOfRight = valueRight.GetValueElementRight();
+        if (valueRightOfRight != null)
+        {
+            valueRightOfRight.Value += valueRight.Value;
+        }
+
+        // Replace self with a 0 in the parent pair
+        // Am I left or right, dad?
+        if (this.Parent?.Left == this)
+        {
+            // I'm left
+            this.Parent.Left = new ValueElement(0);
+        }
+        else if (this.Parent?.Right == this)
+        {
+            // I'm  right
+            this.Parent.Right = new ValueElement(0);
+        }
+        else
+        {
+            throw new InvalidOperationException("Am I adopted?");
+        }
+
+        // :( goodbye world
+        this.Parent = null;
     }
 
     public ValueElement? FindLeftmostValueElementGreaterThan10()
@@ -244,21 +293,56 @@ public class ValueElement : Element
 
     public ValueElement? GetValueElementLeft()
     {
-        // algo: cursor upwards in the parents until your previous parent is not the left item of the next parent
-        // At that point, go left in the pair, then recurse downards right until you hit a value element
+        // Cursor up the parent chain until we find that we are not the "left" child of our parent.
+        // Then cursor over to the parents left child. Their rightmost value is our brother from another mother
 
-        Pair? parentCursor = this.Parent;
-        while (parentCursor != null && parentCursor == parentCursor.Parent?.Left)
+        Pair? cursor = this.Parent;
+
+        while (cursor != null && cursor == cursor.Parent?.Left)
         {
-            parentCursor = parentCursor.Parent;
+            cursor = cursor.Parent;
         }
 
-        // at this point, parent is at the pair where the previous parent was the "right" child
-        // take the left element of this parent, and go to the rightmost value in it
-        Element? element = parentCursor?.Left;
-        while (element != null && element is Pair pairElement)
+        if (cursor == null)
+        {
+            return null;
+        }
+
+        Element? element = cursor.Parent?.Left;
+        while (element is Pair pairElement)
         {
             element = pairElement.Right;
+        }
+
+        if (element is ValueElement valueElement)
+        {
+            return valueElement;
+        }
+
+        return null;
+    }
+
+    public ValueElement? GetValueElementRight()
+    {
+        // Cursor up the parent chain until we find that we are not the "right" child of our parent.
+        // Then cursor over to the parents right child. Their leftmost value is our brother from another mother
+
+        Pair? cursor = this.Parent;
+
+        while (cursor != null && cursor == cursor.Parent?.Right)
+        {
+            cursor = cursor.Parent;
+        }
+
+        if (cursor == null)
+        {
+            return null;
+        }
+
+        Element? element = cursor.Parent?.Right;
+        while (element is Pair pairElement)
+        {
+            element = pairElement.Left;
         }
 
         if (element is ValueElement valueElement)
