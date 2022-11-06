@@ -4,16 +4,19 @@ public class Snailfish
 {
     public void Solve_Par1()
     {
-        string test = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]";
+        var pairs = File.ReadAllLines("day18/input.txt")
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(n => Pair.Parse(n));
 
-        Pair pair = Pair.Parse(test);
-
-        Console.WriteLine($"Magnitude: {pair.Magnitude()}");
-
-        if (!test.Equals(pair.ToString()))
+        Pair summedPair = pairs.First();
+        foreach (Pair pair in pairs.Skip(1))
         {
-            throw new Exception("Didn't parse right");
+            summedPair = Pair.Add(summedPair, pair);
+
+            summedPair.Reduce();
         }
+
+        Console.WriteLine($"Final magnitude: {summedPair.Magnitude()}");
     }
 }
 
@@ -87,7 +90,6 @@ public class Pair : Element
             {
                 i++;
                 left = false;
-                continue;
             }
         }
 
@@ -118,8 +120,10 @@ public class Pair : Element
     public void Reduce()
     {
         // If any pair is nested inside four pairs, the leftmost such pair explodes.
-        if (true)
+        var nestedPair = this.FindNestedPair();
+        if (nestedPair != null)
         {
+            nestedPair.Explode();
         }
 
         // If any regular number is 10 or greater, the leftmost such regular number splits.
@@ -133,6 +137,41 @@ public class Pair : Element
     public void Split()
     {
 
+    }
+
+    public Pair? FindNestedPair()
+    {
+        Stack<(Pair pair, int level)> s = new();
+
+        if (this.Right is Pair right_pair)
+        {
+            s.Push((right_pair, 0));
+        }
+        if (this.Left is Pair left_pair)
+        {
+            s.Push((left_pair, 0));
+        }
+
+        while (s.Count > 0)
+        {
+            (var pair, int level) = s.Pop();
+
+            if (level >= 4 && pair.IsValuePair())
+            {
+                return pair;
+            }
+
+            if (pair.Right is Pair right)
+            {
+                s.Push((right, level + 1));
+            }
+            if (pair.Left is Pair left)
+            {
+                s.Push((left, level + 1));
+            }
+        }
+
+        return null;
     }
 
     public static Pair Add(Pair pair1, Pair pair2)
