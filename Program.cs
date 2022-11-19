@@ -1,3 +1,3 @@
 using problem_solving;
 
-new Snailfish().Solve_Part2();
+new BeaconScanner().Solve_Part1();
