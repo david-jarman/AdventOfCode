@@ -1,3 +1,1 @@
-using problem_solving;
-
-new BeaconScanner().Solve_Part1();
+new CalorieCounting().Solve_Part2();

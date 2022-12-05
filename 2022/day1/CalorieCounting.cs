@@ -2,7 +2,7 @@ public class CalorieCounting
 {
     public void Solve_Part1()
     {
-        var lines = File.ReadAllLines("day1/input.txt");
+        var lines = File.ReadAllLines("2022/day1/input.txt");
 
         int maxCalories = 0;
         int caloriesAcc = 0;
@@ -27,7 +27,7 @@ public class CalorieCounting
     public void Solve_Part2()
     {
         SortedList<int, int> calorieAccs = new(Comparer<int>.Default);
-        var lines = File.ReadAllLines("day1/input.txt");
+        var lines = File.ReadAllLines("2022/day1/input.txt");
 
         int caloriesAcc = 0;
         foreach (string line in lines)
