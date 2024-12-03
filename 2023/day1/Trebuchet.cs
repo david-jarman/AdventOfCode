@@ -39,15 +39,19 @@ public partial class Solutions
     {
         var input = File.ReadAllLines("2023/day1/input.txt");
         //var input = File.ReadAllLines("2023/day1/sample.txt");
+        //var input = File.ReadAllLines("2023/day1/custom.txt");
 
-        Regex regex = new Regex("([1-9]|one|two|three|four|five|six|seven|eight|nine)", RegexOptions.Compiled);
+        const string find = "([1-9]|one|two|three|four|five|six|seven|eight|nine)";
+        Regex leftToRight = new Regex(find, RegexOptions.Compiled);
+        Regex rightToLeft = new Regex(find, RegexOptions.Compiled | RegexOptions.RightToLeft);
 
         uint sum = 0;
         foreach (var line in input)
         {
-            var matches = regex.Matches(line);
-            uint num1 = ConvertToInt(matches.First().Captures.Single().Value);
-            uint num2 = ConvertToInt(matches.Last().Captures.Single().Value);
+            var firstMatch = leftToRight.Matches(line);
+            var lastMatch = rightToLeft.Matches(line);
+            uint num1 = ConvertToInt(firstMatch.First().Captures.Single().Value);
+            uint num2 = ConvertToInt(lastMatch.First().Captures.Single().Value);
 
             sum += (num1 * 10) + num2;
             Console.WriteLine($"{line} = {num1} {num2}. Current sum: {sum}");
