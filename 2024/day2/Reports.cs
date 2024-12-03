@@ -11,13 +11,28 @@ public partial class Solutions
         {
             int[] nums = line.Split(' ').Select(s => int.Parse(s)).ToArray();
 
-            sum += IsValid(nums) ? 1 : 0;
+            sum += IsValid_Simple(nums) ? 1 : 0;
         }
 
         Console.WriteLine($"Answer: {sum}");
     }
 
-    private static bool IsValid(int[] vals)
+    public static void Day2_Part2()
+    {
+        var input = File.ReadAllLines("2024/day2/input.txt");
+
+        int sum = 0;
+        foreach (var line in input)
+        {
+            int[] nums = line.Split(' ').Select(s => int.Parse(s)).ToArray();
+
+            sum += IsValid_Dampener(nums) ? 1 : 0;
+        }
+
+        Console.WriteLine($"Answer: {sum}");
+    }
+
+    private static bool IsValid_Simple(int[] vals)
     {
         // Rules:
         // The levels are either all increasing or all decreasing.
@@ -47,5 +62,32 @@ public partial class Solutions
         }
 
         return true;
+    }
+
+    private static bool IsValid_Dampener(int[] vals)
+    {
+        // Rules:
+        // The levels are either all increasing or all decreasing.
+        // Any two adjacent levels differ by at least one and at most three.
+        // Tolerate a single bad level
+
+        // 1 2 3 4 5
+
+        bool isSafe = IsValid_Simple(vals);
+
+        if (isSafe)
+            return true;
+
+        for (int i = 0; i < vals.Length; i++)
+        {
+            var newVals = vals.Select((v, id) => (id, v)).Where(x => x.id != i).Select(x => x.v).ToArray();
+
+            isSafe = IsValid_Simple(newVals);
+
+            if (isSafe)
+                return true;
+        }
+
+        return false;
     }
 }
