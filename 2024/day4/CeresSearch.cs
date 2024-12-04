@@ -25,6 +25,79 @@ public partial class Solutions
         Console.WriteLine($"Count: {xmasCount}");
     }
 
+    public static void Day4_Part2()
+    {
+        var input = File.ReadAllLines("2024/day4/input.txt");
+
+        var grid = input.Select(s => s.ToCharArray()).ToArray();
+        int rows = grid.Length;
+        int cols = grid[0].Length;
+        int masCount = 0;
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                masCount += MasFrom(grid, i, j) ? 1 : 0;
+            }
+        }
+
+        Console.WriteLine($"Count: {masCount}");
+    }
+
+    private static bool MasFrom(char[][] grid, int i, int j)
+    {
+        const string mas = "MAS";
+
+        // bounds check first
+        if (i > grid.Length - 3)
+            return false;
+        if (j > grid.Length - 3)
+            return false;
+
+        int[][] off_1 = [[1,1,i,j], [-1,-1,i+2,j+2]];
+        int[][] off_2 = [[-1,1,i+2,j],[1,-1,i,j+2]];
+
+        bool mas_1 = false;
+        bool mas_2 = false;
+
+        foreach (var offset in off_1)
+        {
+            var sb = new StringBuilder();
+            for (int k = 0; k < 3; k++)
+            {
+                int i_k = offset[2] + (k * offset[0]);
+                int j_k = offset[3] + (k * offset[1]);
+                sb.Append(grid[i_k][j_k]);
+            }
+
+            if (sb.ToString().Equals(mas, StringComparison.OrdinalIgnoreCase))
+            {
+                mas_1 = true;
+                break;
+            }
+        }
+
+        foreach (var offset in off_2)
+        {
+            var sb = new StringBuilder();
+            for (int k = 0; k < 3; k++)
+            {
+                int i_k = offset[2]+k*offset[0];
+                int j_k = offset[3]+k*offset[1];
+                sb.Append(grid[i_k][j_k]);
+            }
+
+            if (sb.ToString().Equals(mas, StringComparison.OrdinalIgnoreCase))
+            {
+                mas_2 = true;
+                break;
+            }
+        }
+
+        return mas_1 && mas_2;
+    }
+
     private static int CountXmasFrom(char[][] grid, int i, int j)
     {
         int[][] offsets = [[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],];

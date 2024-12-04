@@ -1,1 +1,1 @@
-CY2024.Solutions.Day4_Part1();
+CY2024.Solutions.Day4_Part2();
