@@ -48,6 +48,56 @@ public partial class Solutions
         Console.WriteLine($"Answer: {sum}");
     }
 
+    public static void Day2_Part2()
+    {
+        var input = File.ReadAllLines("2023/day2/input.txt");
+        int sum = 0;
+
+        var gameIdRegex = new Regex("^Game ([0-9]+): (.*)$");
+        var gameRegex = new Regex(@"([0-9]+) (\w+)");
+
+        foreach (var line in input)
+        {
+            int blue = 0, green = 0, red = 0;
+
+            var gameIdMatch = gameIdRegex.Match(line);
+            var gameId = int.Parse(gameIdMatch.Groups[1].Captures[0].Value);
+            var gameSequence = gameIdMatch.Groups[2].Value;
+
+            var games = gameSequence.Split(';').Select(s => s.Trim());
+            foreach (var game in games)
+            {
+                var gameMatches = gameRegex.Matches(game);
+
+                foreach (Match cubeInfo in gameMatches)
+                {
+                    int cubeCount = int.Parse(cubeInfo.Groups[1].Value);
+                    string cubeColor = cubeInfo.Groups[2].Value;
+
+                    switch (cubeColor)
+                    {
+                        case "red":
+                            red = Math.Max(red, cubeCount);
+                            break;
+                        case "blue":
+                            blue = Math.Max(blue, cubeCount);
+                            break;
+                        case "green":
+                            green = Math.Max(green, cubeCount);
+                            break;
+
+                        default:
+                            throw new Exception($"Invalid color: {cubeColor}");
+                    }
+                }
+            }
+
+            sum += blue * green * red;
+        }
+
+        Console.WriteLine($"Answer: {sum}");
+    }
+
     private static int CountPerColor(string color)
     {
         return color switch
