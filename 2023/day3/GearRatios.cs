@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace CY2023;
 
 public partial class Solutions
@@ -11,7 +13,6 @@ public partial class Solutions
 
         foreach (var row in input.Select((line, i) => (line, i)))
         {
-            int i_start = -1;
             int j_start = -1;
             var curNum = new Stack<int>();
             foreach (var col in row.line.Select((c, j) => (c, j)))
@@ -22,10 +23,9 @@ public partial class Solutions
 
                 if (char.IsDigit(c))
                 {
-                    if (i_start == -1)
+                    if (j_start == -1)
                     {
                         // start new number
-                        i_start = i;
                         j_start = j;
                     }
 
@@ -34,21 +34,34 @@ public partial class Solutions
                 else if (curNum.Count > 0)
                 {
                     // end current number and reset context
-                    int num = 0;
-                    int mul = 1;
+                    int num = GetNumber(curNum);
                     int numLength = curNum.Count;
-                    while (curNum.TryPop(out int digit))
-                    {
-                        num += mul * digit;
-                        mul *= 10;
-                    }
 
-                    partNumbers.Add((num, i_start, j_start, numLength));
-                    i_start = -1;
+                    partNumbers.Add((num, row.i, j_start, numLength));
                     j_start = -1;
                 }
             }
+
+            if (curNum.Count > 0)
+            {
+                // At end of line, grab number before moving on
+                int num = GetNumber(curNum);
+                int numLength = curNum.Count;
+
+                partNumbers.Add((num, row.i, j_start, numLength));
+            }
         }
+
+        // debug
+        // string numFile = "2023/day3/parsedNumbers.txt";
+        // var sb = new StringBuilder();
+        // foreach (var p in partNumbers)
+        // {
+        //     sb.AppendLine($"{p.num}");
+        // }
+
+        // File.WriteAllText(numFile, sb.ToString());
+        //end
 
         int partNumSum = 0;
         foreach (var partNum in partNumbers)
@@ -58,6 +71,19 @@ public partial class Solutions
         }
 
         Console.WriteLine($"Sum: {partNumSum}");
+    }
+
+    private static int GetNumber(Stack<int> ints)
+    {
+        int num = 0;
+        int mul = 1;
+        while (ints.TryPop(out int digit))
+        {
+            num += mul * digit;
+            mul *= 10;
+        }
+
+        return num;
     }
 
     private static bool IsAdjacent(int i, int j, int len, bool[][] symbolMap)
@@ -82,7 +108,7 @@ public partial class Solutions
         {
             // top
             int i_top = i - 1;
-            if (i_top > 0)
+            if (i_top >= 0)
                 indices.Add((i_top, iter));
 
             // middle
