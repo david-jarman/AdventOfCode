@@ -34,8 +34,8 @@ public partial class Solutions
                 else if (curNum.Count > 0)
                 {
                     // end current number and reset context
-                    int num = GetNumber(curNum);
                     int numLength = curNum.Count;
+                    int num = GetNumber(curNum);
 
                     partNumbers.Add((num, row.i, j_start, numLength));
                     j_start = -1;
@@ -45,8 +45,8 @@ public partial class Solutions
             if (curNum.Count > 0)
             {
                 // At end of line, grab number before moving on
-                int num = GetNumber(curNum);
                 int numLength = curNum.Count;
+                int num = GetNumber(curNum);
 
                 partNumbers.Add((num, row.i, j_start, numLength));
             }
@@ -67,7 +67,9 @@ public partial class Solutions
         foreach (var partNum in partNumbers)
         {
             // Determine if part number is adjacent to a symbol in the map
-            partNumSum += IsAdjacent(partNum.i, partNum.j, partNum.len, symbolMap) ? partNum.num : 0;
+            bool isAdjacent = IsAdjacent(partNum.i, partNum.j, partNum.len, symbolMap);
+
+            partNumSum += isAdjacent ? partNum.num : 0;
         }
 
         Console.WriteLine($"Sum: {partNumSum}");
@@ -89,6 +91,7 @@ public partial class Solutions
     private static bool IsAdjacent(int i, int j, int len, bool[][] symbolMap)
     {
         var adjacentIndicies = GetAdjacentIndices(i, j, len, symbolMap.Length, symbolMap[0].Length);
+
         foreach (var adj in adjacentIndicies)
         {
             if (symbolMap[adj.i][adj.j])
@@ -104,6 +107,8 @@ public partial class Solutions
 
         int start = Math.Max(j - 1, 0);
         int end = Math.Min(j + len, cols - 1);
+        int num_start = j;
+        int num_end = j + len - 1;
         for (int iter = start; iter <= end; iter++)
         {
             // top
@@ -112,7 +117,7 @@ public partial class Solutions
                 indices.Add((i_top, iter));
 
             // middle
-            if (iter < j || iter > j + len - 1)
+            if (iter < num_start || iter > num_end)
                 indices.Add((i, iter));
 
             // bottom
