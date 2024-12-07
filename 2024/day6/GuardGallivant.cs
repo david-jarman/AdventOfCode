@@ -70,8 +70,10 @@ public partial class Solutions
         if (startPos == null)
             throw new Exception();
 
-        int count = 0;
+        // Wondering if the traverse logic is messed up? Is there an edge case tripping us up?
+        // Didn't account for obstacles that form corners or u-turns
 
+        int count = 0;
         for (i = 0; i < map.Length; i++)
         {
             for (int j = 0; j < map[0].Length; j++)
@@ -87,7 +89,7 @@ public partial class Solutions
                     bool stuck = MoveWithLoopDetection(map, startPos.Value.i, startPos.Value.j);
                     if (stuck)
                     {
-                        Console.WriteLine($"Success. Obstacle added at [{i},{j}]");
+                        // Console.WriteLine($"Success. Obstacle added at [{i},{j}]");
                     }
 
                     count += stuck ? 1 : 0;
@@ -134,7 +136,8 @@ public partial class Solutions
             if (forward.i < 0 || forward.i >= cols || forward.j < 0 || forward.j >= rows)
                 return false;
 
-            if (map[forward.i][forward.j])
+            // Keep turning until an obstacle is not found
+            while (map[forward.i][forward.j])
             {
                 // Obstruction found. Turn 90 degrees.
                 turnCount++;
@@ -143,6 +146,8 @@ public partial class Solutions
 
                 // Record the about-face, before moving.
                 memo[i][j] |= currentDirection;
+
+                forward = (i + moveDir.i, j + moveDir.j);
             }
 
             // Move forward
