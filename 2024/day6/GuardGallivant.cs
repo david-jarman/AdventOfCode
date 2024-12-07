@@ -43,8 +43,8 @@ public partial class Solutions
 
     public static void Day6_Part2()
     {
-        //var input = File.ReadAllLines("2024/day6/input.txt");
-        var input = File.ReadAllLines("2024/day6/sample.txt");
+        var input = File.ReadAllLines("2024/day6/input.txt");
+        //var input = File.ReadAllLines("2024/day6/sample.txt");
         bool[][] map = input.Select(line => line.Select(c => c.Equals(Obstacle)).ToArray()).ToArray();
         Ind? startPos = null;
         int i = 0;
@@ -76,7 +76,10 @@ public partial class Solutions
         {
             for (int j = 0; j < map[0].Length; j++)
             {
-                // TODO: take care of edge case for obstacle in front of guard.
+                // Ignore guard start position
+                if (i == startPos.Value.i && j == startPos.Value.j)
+                    continue;
+
                 if (!map[i][j])
                 {
                     // Try adding an obstacle and run the sim
@@ -129,6 +132,9 @@ public partial class Solutions
                 turnCount++;
                 curDir = dirs[turnCount % 4];
                 currentDirection = 1 << (turnCount % 4);
+
+                // Record the about-face, before moving.
+                memo[i][j] |= currentDirection;
             }
 
             i += curDir.i;
@@ -140,6 +146,7 @@ public partial class Solutions
                 return true;
             }
 
+            // Record direction after turning and moving
             memo[i][j] |= currentDirection;
         }
     }
