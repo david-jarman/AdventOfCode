@@ -85,7 +85,14 @@ public partial class Solutions
                     // Try adding an obstacle and run the sim
                     map[i][j] = true;
                     bool stuck = MoveWithLoopDetection(map, startPos.Value.i, startPos.Value.j);
+                    if (stuck)
+                    {
+                        Console.WriteLine($"Success. Obstacle added at [{i},{j}]");
+                    }
+
                     count += stuck ? 1 : 0;
+
+                    // remove the added obstacle.
                     map[i][j] = false;
                 }
             }
@@ -118,27 +125,29 @@ public partial class Solutions
         Ind[] dirs = [up, right, down, left];
 
         int turnCount = 0;
-        int currentDirection = 1;
-        var curDir = dirs[turnCount % 4];
+        int currentDirection = 1; // default to guard faceing up.
+        var moveDir = up;
         while (true)
         {
             // Advance if no obstacles, otherwise, turn, and advance.
-            Ind forward = (i + curDir.i, j + curDir.j);
+            Ind forward = (i + moveDir.i, j + moveDir.j);
             if (forward.i < 0 || forward.i >= cols || forward.j < 0 || forward.j >= rows)
                 return false;
 
             if (map[forward.i][forward.j])
             {
+                // Obstruction found. Turn 90 degrees.
                 turnCount++;
-                curDir = dirs[turnCount % 4];
+                moveDir = dirs[turnCount % 4];
                 currentDirection = 1 << (turnCount % 4);
 
                 // Record the about-face, before moving.
                 memo[i][j] |= currentDirection;
             }
 
-            i += curDir.i;
-            j += curDir.j;
+            // Move forward
+            i += moveDir.i;
+            j += moveDir.j;
 
             // Check if guard has been in this spot, in this direction before.
             if ((memo[i][j] & currentDirection) != 0)
