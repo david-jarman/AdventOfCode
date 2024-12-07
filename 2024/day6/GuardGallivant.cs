@@ -76,6 +76,7 @@ public partial class Solutions
         {
             for (int j = 0; j < map[0].Length; j++)
             {
+                // TODO: take care of edge case for obstacle in front of guard.
                 if (!map[i][j])
                 {
                     // Try adding an obstacle and run the sim
@@ -90,14 +91,14 @@ public partial class Solutions
         Console.WriteLine($"Count: {count}");
     }
 
-    private static int Move(bool[][] map, int start_i, int start_j)
+    private static bool MoveWithLoopDetection(bool[][] map, int start_i, int start_j)
     {
         // memo will represent if the guard has been in a position in a direction
         // 0 = not been there
         // 1 = been there in the up dir
         // 2 = right
         // 4 = down
-        // 8 = right
+        // 8 = left
         int[][] memo = map.Select(x => x.Select(_ => 0).ToArray()).ToArray();
         memo[start_i][start_j] = 1;
         int rows = map.Length;
@@ -119,31 +120,31 @@ public partial class Solutions
         while (true)
         {
             // Advance if no obstacles, otherwise, turn, and advance.
-
             Ind forward = (i + curDir.i, j + curDir.j);
             if (forward.i < 0 || forward.i >= cols || forward.j < 0 || forward.j >= rows)
-                break;
+                return false;
 
             if (map[forward.i][forward.j])
             {
-                curDir = dirs[++turnCount % 4];
-                currentDirection = (int)Math.Pow((turnCount % 4) + 1, 2);
+                turnCount++;
+                curDir = dirs[turnCount % 4];
+                currentDirection = 1 << (turnCount % 4);
             }
 
             i += curDir.i;
             j += curDir.j;
-            memo[i][j] |= currentDirection;
 
+            // Check if guard has been in this spot, in this direction before.
             if ((memo[i][j] & currentDirection) != 0)
             {
-                return true
+                return true;
             }
-        }
 
-        return memo.SelectMany(x => x).Aggregate(0, (agg, val) => val ? agg + 1 : agg);
+            memo[i][j] |= currentDirection;
+        }
     }
 
-    private static bool MoveWithLoopDetection(bool[][] map, int start_i, int start_j)
+    private static int Move(bool[][] map, int start_i, int start_j)
     {
         bool[][] memo = map.Select(x => x.Select(_ => false).ToArray()).ToArray();
         memo[start_i][start_j] = true;
@@ -178,7 +179,6 @@ public partial class Solutions
             memo[i][j] = true;
         }
 
-        // TODO: determine if guard got stuck in a loop and return true if so.
-        return false;
+        return memo.SelectMany(x => x).Aggregate(0, (agg, val) => val ? agg + 1 : agg);
     }
 }
